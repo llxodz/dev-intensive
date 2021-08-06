@@ -2,7 +2,11 @@ package ru.skillbranch.devintensive
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import ru.skillbranch.devintensive.models.User
+import ru.skillbranch.devintensive.extensions.TimeUnits
+import ru.skillbranch.devintensive.extensions.add
+import ru.skillbranch.devintensive.extensions.format
+import ru.skillbranch.devintensive.extensions.toUserView
+import ru.skillbranch.devintensive.models.*
 import java.util.*
 
 /**
@@ -45,12 +49,35 @@ class ExampleUnitTest {
     @Test
     fun test_copy() {
         val user = User.makeUser("John Weak")
-        val user2 = user.copy(id="2", lastVisit = Date())
+        val user2 = user.copy(lastVisit = Date())
+        val user3 = user.copy(lastVisit = Date().add(-2, TimeUnits.SECOND))
+        val user4 = user.copy(lastName = "Doe", lastVisit = Date().add(2, TimeUnits.HOUR))
 
-        if(user.equals(user2)){
-            println("equals ${user.hashCode()} ${user2.hashCode()} \n$user \n$user2")
-        }else {
-            println("not equals ${user.hashCode()} ${user2.hashCode()} \n$user \n$user2")
-        }
+        println("""
+            ${user.lastVisit?.format()}
+            ${user2.lastVisit?.format()}
+            ${user3.lastVisit?.format()}
+            ${user4.lastVisit?.format()}
+        """.trimIndent())
+    }
+
+    @Test
+    fun test_data_maping() {
+        val user = User.makeUser("Илья Гаврилов")
+        val newUser = user.copy(lastVisit = Date().add(-7, TimeUnits.SECOND))
+        println(user)
+        val userView = newUser.toUserView()
+
+        userView.printMe()
+    }
+
+    @Test
+    fun test_abstract_factory() {
+        val user = User.makeUser("Илья Гаврилов")
+        val txtMessage = BaseMessage.makeMessage(user, Chat("0"), payload = "any text message", type = "text")
+        val imgMessage = BaseMessage.makeMessage(user, Chat("0"), payload = "any image url", type = "image")
+
+        println(txtMessage.formatMessage())
+        println(imgMessage.formatMessage())
     }
 }
